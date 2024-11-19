@@ -1,0 +1,103 @@
+.prose {
+    @apply text-gray-900 dark:text-gray-100;
+}
+
+.prose code {
+    @apply bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded;
+}
+
+.prose pre {
+    @apply bg-gray-100 dark:bg-gray-800 p-4 rounded-lg overflow-x-auto;
+}
+
+.prose blockquote {
+    @apply border-l-4 border-gray-300 dark:border-gray-600 pl-4 italic;
+}
+
+.chat-container {
+    background: linear-gradient(to bottom, #f3f4f6, #ffffff);
+    @apply dark:bg-gradient-to-b dark:from-gray-800 dark:to-gray-900;
+}
+
+.send-button {
+    @apply bg-gradient-to-r from-blue-500 to-indigo-600
+    hover:from-blue-600 hover:to-indigo-700
+    text-white font-medium px-6 py-2 rounded-lg
+    transition duration-200 ease-in-out
+    shadow-md hover:shadow-lg;
+}
+
+.chat-input {
+    @apply bg-white dark:bg-gray-800 
+    border border-gray-200 dark:border-gray-700
+    focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400
+    focus:border-transparent
+    rounded-lg px-4 py-3
+    text-gray-800 dark:text-gray-200;
+}
+
+.prose-white {
+    @apply text-white;
+}
+
+.prose-white code {
+    @apply bg-white/20;
+}
+
+.prose-white pre {
+    @apply bg-white/20;
+}
+
+.prose-white pre code {
+    @apply text-gray-900 !important;
+}
+
+.prose-white blockquote {
+    @apply border-white/40 text-white/90;
+}
+
+.prose pre code {
+    @apply text-gray-900 dark:text-gray-900 !important;
+}
+
+.prose code {
+    @apply text-gray-900 dark:text-gray-900 !important;
+}
+
+.typing-indicator {
+    display: flex;
+    gap: 4px;
+    padding: 8px 12px;
+    background: #f3f4f6;
+    border-radius: 20px;
+    width: fit-content;
+}
+
+.typing-indicator span {
+    width: 8px;
+    height: 8px;
+    background: #6366f1;
+    border-radius: 50%;
+    animation: bounce 1.5s infinite ease-in-out;
+}
+
+.typing-indicator span:nth-child(1) { animation-delay: 0s; }
+.typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+.typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes bounce {
+    0%, 60%, 100% {
+        transform: translateY(0);
+    }
+    30% {
+        transform: translateY(-4px);
+    }
+}
+
+.dark .typing-indicator {
+    background: #374151;
+}
+
+.dark .typing-indicator span {
+    background: #818cf8;
+}
