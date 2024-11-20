@@ -1,4 +1,4 @@
-import { marked } from 'marked';
+import { marked } from './utils/marked-config';
 
 class ChatManager {
     constructor() {
@@ -8,24 +8,29 @@ class ChatManager {
         this.isLoading = false;
         this.clearButton = document.getElementById('clear-history');
         
-        this.initializeMarked();
         this.setupEventListeners();
     }
 
-    initializeMarked() {
-        marked.setOptions({
-            gfm: true,
-            breaks: true,
-            sanitize: true
-        });
-    }
-
     setupEventListeners() {
-        this.messageInput.addEventListener('input', this.autoResizeTextarea.bind(this));
-        this.sendButton.addEventListener('click', this.sendMessage.bind(this));
-        this.messageInput.addEventListener('keypress', this.handleEnterPress.bind(this));
-        this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
-        this.clearButton.addEventListener('click', this.clearHistory.bind(this));
+        if (this.messageInput) {
+            this.messageInput.addEventListener('input', this.autoResizeTextarea.bind(this));
+        }
+        
+        if (this.sendButton) {
+            this.sendButton.addEventListener('click', this.sendMessage.bind(this));
+        }
+        
+        if (this.messageInput) {
+            this.messageInput.addEventListener('keypress', this.handleEnterPress.bind(this));
+        }
+        
+        if (this.chatMessages) {
+            this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
+        }
+        
+        if (this.clearButton) {
+            this.clearButton.addEventListener('click', this.clearHistory.bind(this));
+        }
     }
 
     decodeHtmlEntities(text) {
@@ -175,5 +180,7 @@ class ChatManager {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    new ChatManager();
+    if (document.getElementById('chat-messages')) {
+        new ChatManager();
+    }
 });

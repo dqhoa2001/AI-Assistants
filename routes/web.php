@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\QAController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -22,6 +23,17 @@ Route::middleware('auth')->group(function () {
     Route::get('/chat', [ChatController::class, 'index'])->name('chat');
     Route::post('/chat/send', [ChatController::class, 'sendMessage'])->name('chat.send');
     Route::post('/chat/clear', [ChatController::class, 'clearHistory'])->name('chat.clear');
+
+    // Q&A Assistant
+    Route::get('/qa', [QAController::class, 'index'])->name('qa');
+    Route::post('/qa/import', [QAController::class, 'importSheet'])->name('qa.import');
+    Route::post('/qa/ask', [QAController::class, 'ask'])->name('qa.ask');
+    Route::get('/qa/sheets', [QAController::class, 'listSheets'])->name('qa.sheets');
+    Route::post('/qa/preview', [QAController::class, 'previewSheet'])->name('qa.preview');
+    Route::post('/qa/check-existing', [QAController::class, 'checkExistingSheets'])->name('qa.check-existing');
+    Route::post('/qa/update-sheet', [QAController::class, 'updateSheet'])->name('qa.update-sheet');
+    Route::get('/qa/sheets/{id}', [QAController::class, 'getSheet'])->name('qa.sheet');
+    Route::post('/qa/chat', [QAController::class, 'chat'])->name('qa.chat');
 });
 
 require __DIR__.'/auth.php';

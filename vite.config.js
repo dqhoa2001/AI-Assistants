@@ -11,4 +11,12 @@ export default defineConfig({
             refresh: true,
         }),
     ],
+    resolve: {
+        alias: {
+            // Thêm alias nếu cần
+        },
+    },
+    optimizeDeps: {
+        include: ['marked', 'dompurify']
+    }
 });
