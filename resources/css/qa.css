@@ -212,11 +212,30 @@
 }
 
 #sheets-list > div {
-    border: 1px solid rgba(0, 0, 0, 0.05);
+    @apply relative overflow-hidden
+           border border-gray-200 dark:border-gray-700
+           rounded-lg p-4
+           transition-all duration-200;
 }
 
-.dark #sheets-list > div {
-    border-color: rgba(255, 255, 255, 0.05);
+#sheets-list > div:hover {
+    @apply bg-gray-50 dark:bg-gray-700/50;
+}
+
+#sheets-list > div.selected {
+    @apply ring-1 ring-blue-500 dark:ring-blue-400
+           border-transparent
+           bg-blue-50/50 dark:bg-blue-900/20;
+}
+
+@keyframes gentlePulse {
+    0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.1); }
+    70% { box-shadow: 0 0 0 4px rgba(59, 130, 246, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+}
+
+#sheets-list > div.selected {
+    animation: gentlePulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 /* Import styles từ chat.css */

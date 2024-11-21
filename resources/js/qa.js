@@ -1,5 +1,5 @@
-import { marked } from './utils/marked-config';
-import DOMPurify from 'dompurify';
+import { marked } from "./utils/marked-config";
+import DOMPurify from "dompurify";
 
 const importForm = document.getElementById("import-form");
 const modal = document.getElementById("sheet-selection-modal");
@@ -9,21 +9,21 @@ const confirmButton = document.getElementById("confirm-import");
 let sheetsData = null;
 
 // Thêm biến kiểm soát loading overlay
-let loadingOverlay = document.getElementById('loading-overlay');
+let loadingOverlay = document.getElementById("loading-overlay");
 
-function showLoading(message = 'Loading...') {
+function showLoading(message = "Loading...") {
     if (loadingOverlay) {
-        const loadingText = loadingOverlay.querySelector('#loading-text');
+        const loadingText = loadingOverlay.querySelector("#loading-text");
         if (loadingText) {
             loadingText.textContent = message;
         }
-        loadingOverlay.classList.remove('hidden');
+        loadingOverlay.classList.remove("hidden");
     }
 }
 
 function hideLoading() {
     if (loadingOverlay) {
-        loadingOverlay.classList.add('hidden');
+        loadingOverlay.classList.add("hidden");
     }
 }
 
@@ -226,15 +226,15 @@ let selectedSheetId = null;
 
 async function refreshSheetsList() {
     if (isRefreshing) return;
-    
+
     try {
         isRefreshing = true;
         startRefreshAnimation();
-        
-        const response = await fetch('/qa/sheets');
+
+        const response = await fetch("/qa/sheets");
         const data = await response.json();
         
-        const sheetsList = document.getElementById('sheets-list');
+        const sheetsList = document.getElementById("sheets-list");
         
         if (data.sheets.length === 0) {
             sheetsList.innerHTML = `
@@ -244,11 +244,12 @@ async function refreshSheetsList() {
             `;
             return;
         }
-        
+
+        // Render sheets list với selected state
         sheetsList.innerHTML = data.sheets
             .map(sheet => `
-                <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 hover:bg-gray-100 dark:hover:bg-gray-600 transition-all duration-200 cursor-pointer ${selectedSheetId === sheet.id ? 'ring-2 ring-blue-500' : ''}"
-                    data-sheet-id="${sheet.id}">
+                <div class="sheet-item ${selectedSheetId === sheet.id ? 'selected' : ''}"
+                     data-sheet-id="${sheet.id}">
                     <div class="flex flex-col gap-2">
                         <div class="flex items-center justify-between">
                             <h4 class="font-medium text-gray-900 dark:text-gray-100">${sheet.sheet_name}</h4>
@@ -286,14 +287,14 @@ async function refreshSheetsList() {
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7"></path>
                                     </svg>
-                                    ${sheet.columns_count}
+                                    ${sheet.columns_count || sheet.headers?.length || 0} columns
                                 </span>
 
                                 <span class="sheet-stat">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
                                     </svg>
-                                    ${sheet.rows_count}
+                                    ${sheet.rows_count || sheet.content?.length || 0} rows
                                 </span>
                             </div>
                         </div>
@@ -302,38 +303,36 @@ async function refreshSheetsList() {
             `)
             .join("");
 
-        // Add click handlers
-        document.querySelectorAll('.chat-with-sheet-btn').forEach(btn => {
-            btn.addEventListener('click', async (e) => {
-                e.stopPropagation();
-                const sheetId = btn.dataset.sheetId;
+        // Add click handlers for sheet items
+        document.querySelectorAll('.sheet-item').forEach(item => {
+            item.addEventListener('click', async () => {
+                const sheetId = item.dataset.sheetId;
                 
-                // Lấy thông tin sheet
-                const response = await fetch(`/qa/sheets/${sheetId}`);
-                const data = await response.json();
+                // Update selected state
+                document.querySelectorAll('.sheet-item').forEach(s => {
+                    s.classList.remove('selected');
+                });
+                item.classList.add('selected');
                 
-                // Cập nhật tiêu đề chat
-                const chatTitle = document.getElementById('chat-title');
-                if (chatTitle) {
-                    chatTitle.textContent = `Chat with: ${data.sheet_name}`;
-                }
-
-                // Gọi hàm select sheet để chat
+                // Update selectedSheetId
+                selectedSheetId = sheetId;
+                
+                // Fetch chat history
                 await selectSheetForChat(sheetId);
             });
         });
 
-        // Update button handlers
+        // Add update button handlers
         document.querySelectorAll('.update-sheet-btn').forEach(btn => {
             btn.addEventListener('click', async (e) => {
-                e.stopPropagation();
+                e.stopPropagation(); // Prevent sheet selection
                 const sheetId = btn.dataset.sheetId;
                 const sheetUrl = btn.dataset.sheetUrl;
                 await updateSingleSheet(sheetId, sheetUrl);
             });
         });
     } catch (error) {
-        console.error('Failed to refresh sheets list:', error);
+        console.error("Failed to refresh sheets list:", error);
     } finally {
         isRefreshing = false;
         stopRefreshAnimation();
@@ -341,21 +340,23 @@ async function refreshSheetsList() {
 }
 
 // Sửa lại event listener cho nút refresh
-document.getElementById('refresh-sheets').addEventListener('click', (e) => {
+document.getElementById("refresh-sheets").addEventListener("click", (e) => {
     e.preventDefault();
     refreshSheetsList();
 });
 
 // Initial load - chỉ gọi một lần khi trang load
-document.addEventListener('DOMContentLoaded', () => {
-    loadingOverlay = document.getElementById('loading-overlay');
+document.addEventListener("DOMContentLoaded", () => {
+    loadingOverlay = document.getElementById("loading-overlay");
     refreshSheetsList();
 });
 
 // Function để cập nhật một sheet cụ thể
 async function updateSingleSheet(sheetId, sheetUrl) {
-    const button = document.querySelector(`.update-sheet-btn[data-sheet-id="${sheetId}"]`);
-    const buttonIcon = button.querySelector('svg');
+    const button = document.querySelector(
+        `.update-sheet-btn[data-sheet-id="${sheetId}"]`
+    );
+    const buttonIcon = button.querySelector("svg");
     try {
         // Chỉ xoay icon
         buttonIcon.classList.add("animate-spin");
@@ -463,158 +464,327 @@ async function selectSheetForChat(sheetId) {
         }
 
         // Enable chat input và nút send
-        const chatInput = document.getElementById('chat-input');
-        const sendButton = document.querySelector('#chat-form button[type="submit"]');
-        
+        const chatInput = document.getElementById("chat-input");
+        const sendButton = document.querySelector(
+            '#chat-form button[type="submit"]'
+        );
+
         if (chatInput && sendButton) {
             chatInput.disabled = false;
-            chatInput.placeholder = 'Ask anything about this sheet...';
+            chatInput.placeholder = "Ask anything about this sheet...";
             sendButton.disabled = false;
         }
-
     } catch (error) {
-        console.error('Failed to select sheet:', error);
+        console.error("Failed to select sheet:", error);
     }
 }
 
-// Xử lý submit chat form
-document.getElementById('chat-form').addEventListener('submit', async (e) => {
+// Thêm loading indicator
+function showLoadingIndicator() {
+    const messageDiv = document.createElement("div");
+    messageDiv.className = "flex justify-start animate-fade-in";
+    messageDiv.id = "loading-indicator";
+
+    messageDiv.innerHTML = `
+        <div class="max-w-[80%] break-words bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 shadow-sm">
+            <div class="typing-indicator">
+                <span style="animation-delay: 0s"></span>
+                <span style="animation-delay: 0.2s"></span>
+                <span style="animation-delay: 0.4s"></span>
+            </div>
+        </div>
+    `;
+
+    const chatMessages = document.getElementById("chat-messages");
+    chatMessages.appendChild(messageDiv);
+
+    // Scroll sau khi thêm loading indicator
+    setTimeout(() => {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }, 100);
+}
+
+// Cập nhật xử lý chat form
+document.getElementById("chat-form")?.addEventListener("submit", async (e) => {
     e.preventDefault();
-    
+
     if (!selectedSheetId) {
-        alert('Please select a sheet first');
+        alert("Please select a sheet first");
         return;
     }
 
-    const chatInput = document.getElementById('chat-input');
+    const chatInput = document.getElementById("chat-input");
+    const sendButton = document.querySelector(
+        '#chat-form button[type="submit"]'
+    );
     const message = chatInput.value.trim();
-    
+
     if (!message) return;
 
     try {
+        // Disable input và button
         chatInput.disabled = true;
-        const sendButton = document.querySelector('#chat-form button[type="submit"]');
         sendButton.disabled = true;
-        
-        // Add user message with markdown
-        const chatMessages = document.getElementById('chat-messages');
-        chatMessages.innerHTML += renderMessage(message, 'user');
-        chatMessages.scrollTop = chatMessages.scrollHeight;
 
-        // Clear input and reset height
-        chatInput.value = '';
-        chatInput.style.height = 'auto';
-        
-        // Hide markdown preview
-        document.getElementById('markdown-preview').classList.add('hidden');
+        // Clear input trước khi hiển thị tin nhắn
+        const messageToSend = message;
+        chatInput.value = "";
+        chatInput.style.height = "auto";
 
-        // Show loading message
-        const loadingId = Date.now();
-        chatMessages.innerHTML += `
-            <div id="loading-${loadingId}" class="flex justify-start mb-3">
-                <div class="bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg py-2 px-4">
-                    <div class="flex items-center gap-2">
-                        <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        Processing...
-                    </div>
-                </div>
-            </div>
-        `;
+        // Hiển thị tin nhắn người dùng
+        const chatMessages = document.getElementById("chat-messages");
+        const userMessage = renderMessage(messageToSend, "user");
+        chatMessages.insertAdjacentHTML("beforeend", userMessage);
 
-        // Send message to server
-        const response = await fetch('/qa/chat', {
-            method: 'POST',
+        // Scroll sau khi thêm tin nhắn người dùng
+        setTimeout(() => {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }, 100);
+
+        // Hiển thị loading
+        showLoadingIndicator();
+
+        // Gửi tin nhắn
+        const response = await fetch("/qa/chat", {
+            method: "POST",
             headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": document.querySelector(
+                    'meta[name="csrf-token"]'
+                ).content,
             },
             body: JSON.stringify({
                 sheet_id: selectedSheetId,
-                message: message
-            })
+                message: messageToSend,
+            }),
         });
 
-        // Remove loading message
-        document.getElementById(`loading-${loadingId}`).remove();
+        // Xóa loading
+        document.getElementById("loading-indicator")?.remove();
 
         const data = await response.json();
-        
-        if (response.ok) {
-            // Add AI response with markdown
-            chatMessages.innerHTML += renderMessage(data.response, 'assistant');
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        } else {
-            throw new Error(data.error || 'Failed to get response');
-        }
 
+        if (response.ok) {
+            const assistantMessage = renderMessage(data.response, "assistant");
+            chatMessages.insertAdjacentHTML("beforeend", assistantMessage);
+
+            // Scroll sau khi thêm tin nhắn assistant
+            setTimeout(() => {
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }, 100);
+        } else {
+            throw new Error(data.error || "Failed to get response");
+        }
     } catch (error) {
-        console.error('Chat error:', error);
-        alert('Failed to send message: ' + error.message);
+        console.error("Chat error:", error);
+        alert("Failed to send message: " + error.message);
     } finally {
-        chatInput.disabled = false;
-        sendButton.disabled = false;
-        chatInput.focus();
+        if (chatInput) chatInput.disabled = false;
+        if (sendButton) sendButton.disabled = false;
+        chatInput?.focus();
     }
 });
 
 // Function để render tin nhắn với markdown
 function renderMessage(message, role) {
     const parsedContent = DOMPurify.sanitize(marked.parse(message));
+    const currentTime = new Date().toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+    });
+
     return `
-        <div class="flex justify-${role === 'user' ? 'end' : 'start'} mb-3">
-            <div class="max-w-[80%] ${role === 'user' 
-                ? 'bg-blue-600 text-white' 
-                : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200'} rounded-lg py-2 px-4 markdown-content">
-                ${parsedContent}
+        <div class="flex justify-${
+            role === "user" ? "end" : "start"
+        } animate-fade-in">
+            <div class="max-w-[80%] break-words ${
+                role === "user"
+                    ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white"
+                    : "bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700"
+            } 
+                rounded-xl px-4 py-3 shadow-sm">
+                <div class="whitespace-normal text-sm prose dark:prose-invert max-w-none ${
+                    role === "user"
+                        ? "prose-white prose-pre:text-gray-900"
+                        : "prose-gray dark:prose-invert"
+                }">
+                    ${parsedContent}
+                </div>
+                <div class="text-xs opacity-70 mt-1">
+                    ${currentTime}
+                </div>
             </div>
         </div>
     `;
 }
 
-// Function để hiển thị lịch sử chat
-function displayChatHistory(chats) {
-    const chatMessages = document.getElementById('chat-messages');
-    if (chatMessages) {
-        chatMessages.innerHTML = chats.map(chat => 
-            renderMessage(chat.message, chat.role)
-        ).join('');
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
-}
-
 // Auto-resize textarea
-const chatInput = document.getElementById('chat-input');
+const chatInput = document.getElementById("chat-input");
 if (chatInput) {
-    chatInput.addEventListener('input', function() {
-        this.style.height = 'auto';
-        this.style.height = (this.scrollHeight) + 'px';
+    chatInput.addEventListener("input", function () {
+        this.style.height = "auto";
+        this.style.height = this.scrollHeight + "px";
     });
 }
 
 // Markdown preview
+const preview = document.getElementById("markdown-preview");
 let previewTimeout;
-chatInput.addEventListener('input', function() {
-    clearTimeout(previewTimeout);
-    const preview = document.getElementById('markdown-preview');
-    
-    if (this.value.trim()) {
-        previewTimeout = setTimeout(() => {
-            preview.innerHTML = DOMPurify.sanitize(marked.parse(this.value));
-            preview.classList.remove('hidden');
-        }, 500);
-    } else {
-        preview.classList.add('hidden');
+
+if (chatInput && preview) {
+    chatInput.addEventListener("input", function () {
+        // Auto-resize textarea
+        this.style.height = "auto";
+        this.style.height = this.scrollHeight + "px";
+
+        // Clear timeout trước đó
+        clearTimeout(previewTimeout);
+
+        // Ẩn preview nếu input trng
+        if (!this.value.trim()) {
+            preview.classList.add("hidden");
+            return;
+        }
+
+        // Chỉ hiển thị preview khi có markdown syntax
+        const hasMarkdown = /[*#`_~\[\]\(\)\{\}]/.test(this.value);
+
+        if (hasMarkdown) {
+            previewTimeout = setTimeout(() => {
+                preview.innerHTML = DOMPurify.sanitize(
+                    marked.parse(this.value)
+                );
+                preview.classList.remove("hidden");
+            }, 500);
+        } else {
+            preview.classList.add("hidden");
+        }
+    });
+
+    // Ẩn preview khi form submit
+    document.getElementById("chat-form")?.addEventListener("submit", () => {
+        preview.classList.add("hidden");
+    });
+
+    // Ẩn preview khi click outside
+    document.addEventListener("click", (e) => {
+        if (!chatInput.contains(e.target) && !preview.contains(e.target)) {
+            preview.classList.add("hidden");
+        }
+    });
+}
+
+// Hide preview when clicking outside
+document.addEventListener("click", function (e) {
+    const preview = document.getElementById("markdown-preview");
+    const input = document.getElementById("chat-input");
+    if (!preview.contains(e.target) && !input.contains(e.target)) {
+        preview.classList.add("hidden");
     }
 });
 
-// Hide preview when clicking outside
-document.addEventListener('click', function(e) {
-    const preview = document.getElementById('markdown-preview');
-    const input = document.getElementById('chat-input');
-    if (!preview.contains(e.target) && !input.contains(e.target)) {
-        preview.classList.add('hidden');
+// Auto-resize textarea
+function autoResizeTextarea(textarea) {
+    textarea.style.height = "auto";
+    textarea.style.height = textarea.scrollHeight + "px";
+}
+
+// Initialize chat functionality
+function initializeChat() {
+    const chatInput = document.getElementById("chat-input");
+    const chatForm = document.getElementById("chat-form");
+    const chatMessages = document.getElementById("chat-messages");
+
+    if (chatInput) {
+        // Xử lý auto-resize
+        chatInput.addEventListener("input", () => {
+            autoResizeTextarea(chatInput);
+        });
+
+        // Thêm xử lý keydown cho Enter
+        chatInput.addEventListener("keydown", (e) => {
+            // Kiểm tra nếu nhấn Enter và không nhấn Shift
+            if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault(); // Ngăn xuống dòng mặc định
+
+                // Trigger submit form nếu có nội dung
+                if (chatInput.value.trim() && chatForm) {
+                    chatForm.dispatchEvent(new Event("submit"));
+                }
+            }
+        });
     }
-});
+
+    if (chatForm) {
+        chatForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            if (!selectedSheetId) {
+                alert("Please select a sheet first");
+                return;
+            }
+
+            const message = chatInput.value.trim();
+            if (!message) return;
+
+            try {
+                // Disable input và button
+                chatInput.disabled = true;
+                const sendButton = chatForm.querySelector(
+                    'button[type="submit"]'
+                );
+                if (sendButton) sendButton.disabled = true;
+
+                // Clear input trước khi hiển thị tin nhắn
+                chatInput.value = "";
+                autoResizeTextarea(chatInput);
+
+                // Hiển thị tin nhắn người dùng
+                const userMessage = renderMessage(message, "user");
+                chatMessages.insertAdjacentHTML("beforeend", userMessage);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+
+                // Gửi tin nhắn và nhận phản hồi
+                const response = await fetch("/qa/chat", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN": document.querySelector(
+                            'meta[name="csrf-token"]'
+                        ).content,
+                    },
+                    body: JSON.stringify({
+                        sheet_id: selectedSheetId,
+                        message: message,
+                    }),
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    const assistantMessage = renderMessage(
+                        data.response,
+                        "assistant"
+                    );
+                    chatMessages.insertAdjacentHTML(
+                        "beforeend",
+                        assistantMessage
+                    );
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                } else {
+                    throw new Error(data.error || "Failed to get response");
+                }
+            } catch (error) {
+                console.error("Chat error:", error);
+                alert("Failed to send message: " + error.message);
+            } finally {
+                chatInput.disabled = false;
+                if (sendButton) sendButton.disabled = false;
+                chatInput.focus();
+            }
+        });
+    }
+}
+// Initialize when document is ready
+document.addEventListener("DOMContentLoaded", initializeChat);
