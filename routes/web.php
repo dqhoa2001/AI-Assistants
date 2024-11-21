@@ -34,6 +34,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/qa/update-sheet', [QAController::class, 'updateSheet'])->name('qa.update-sheet');
     Route::get('/qa/sheets/{id}', [QAController::class, 'getSheet'])->name('qa.sheet');
     Route::post('/qa/chat', [QAController::class, 'chat'])->name('qa.chat');
+    Route::delete('/qa/sheets/{id}', [QAController::class, 'deleteSheet'])->name('qa.sheets.delete');
 });
 
 require __DIR__.'/auth.php';

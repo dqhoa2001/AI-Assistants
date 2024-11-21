@@ -313,4 +313,21 @@ class QAController extends Controller
             ], 500);
         }
     }
+
+    public function deleteSheet($id)
+    {
+        try {
+            $sheet = SheetContent::findOrFail($id);
+            
+            // Delete related chats first
+            SheetChat::where('sheet_content_id', $id)->delete();
+            
+            // Delete the sheet
+            $sheet->delete();
+            
+            return response()->json(['message' => 'Sheet deleted successfully']);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to delete sheet'], 500);
+        }
+    }
 } 

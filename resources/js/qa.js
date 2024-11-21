@@ -255,11 +255,11 @@ async function refreshSheetsList() {
                             <h4 class="font-medium text-gray-900 dark:text-gray-100">${sheet.sheet_name}</h4>
                             <div class="flex items-center gap-2">
                                 <button 
-                                    class="chat-with-sheet-btn text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300 transition-colors duration-200"
+                                    class="delete-sheet-btn text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-colors duration-200"
                                     data-sheet-id="${sheet.id}"
                                 >
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                     </svg>
                                 </button>
                                 <button 
@@ -268,7 +268,7 @@ async function refreshSheetsList() {
                                     data-sheet-url="${sheet.sheet_url}"
                                 >
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                                     </svg>
                                 </button>
                             </div>
@@ -329,6 +329,15 @@ async function refreshSheetsList() {
                 const sheetId = btn.dataset.sheetId;
                 const sheetUrl = btn.dataset.sheetUrl;
                 await updateSingleSheet(sheetId, sheetUrl);
+            });
+        });
+
+        // Add delete button handlers
+        document.querySelectorAll('.delete-sheet-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation(); // Prevent sheet selection
+                const sheetId = btn.dataset.sheetId;
+                await deleteSheet(sheetId);
             });
         });
     } catch (error) {
@@ -753,5 +762,63 @@ async function handleChatSubmit(e) {
         chatInput.disabled = false;
         if (sendButton) sendButton.disabled = false;
         chatInput.focus();
+    }
+}
+
+// Function to delete a specific sheet
+async function deleteSheet(sheetId) {
+    if (!confirm('Are you sure you want to delete this sheet? This action cannot be undone.')) {
+        return;
+    }
+
+    const button = document.querySelector(
+        `.delete-sheet-btn[data-sheet-id="${sheetId}"]`
+    );
+    const buttonIcon = button.querySelector("svg");
+
+    try {
+        // Add rotation animation
+        buttonIcon.classList.add("animate-spin");
+
+        const response = await fetch(`/qa/sheets/${sheetId}`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": document.querySelector(
+                    'meta[name="csrf-token"]'
+                ).content,
+            },
+        });
+
+        if (response.ok) {
+            // If current sheet is deleted, clear chat
+            if (selectedSheetId === sheetId) {
+                selectedSheetId = null;
+                const chatMessages = document.getElementById('chat-messages');
+                const chatTitle = document.getElementById('chat-title');
+                if (chatMessages) chatMessages.innerHTML = '';
+                if (chatTitle) chatTitle.textContent = 'Select a sheet to start chatting';
+                
+                // Disable chat input
+                const chatInput = document.getElementById('chat-input');
+                const sendButton = document.querySelector('#chat-form button[type="submit"]');
+                if (chatInput) {
+                    chatInput.disabled = true;
+                    chatInput.placeholder = 'Please select a sheet first...';
+                }
+                if (sendButton) sendButton.disabled = true;
+            }
+
+            // Refresh sheets list
+            await refreshSheetsList();
+        } else {
+            const data = await response.json();
+            throw new Error(data.error || "Failed to delete sheet");
+        }
+    } catch (error) {
+        console.error("Failed to delete sheet:", error);
+        alert("Failed to delete sheet: " + error.message);
+    } finally {
+        buttonIcon.classList.remove("animate-spin");
     }
 }
