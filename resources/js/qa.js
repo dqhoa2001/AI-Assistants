@@ -8,7 +8,7 @@ const cancelButton = document.getElementById("cancel-import");
 const confirmButton = document.getElementById("confirm-import");
 let sheetsData = null;
 
-// Thêm biến kiểm soát loading overlay
+// Add loading overlay control variable
 let loadingOverlay = document.getElementById("loading-overlay");
 
 function showLoading(message = "Loading...") {
@@ -51,9 +51,9 @@ async function showSheetSelectionModal(sheets) {
                                     : ""
                             }
                             <span class="text-sm text-gray-500 dark:text-gray-400 block">
-                                ${sheet.headers?.length || 0} columns, ${
+                                ${sheet.headers?.length || 0}, ${
                 sheet.content?.length || 0
-            } rows
+            }
                             </span>
                         </label>
                     </div>
@@ -190,16 +190,16 @@ confirmButton.addEventListener("click", async () => {
     }
 });
 
-// Thêm biến để theo dõi trạng thái loading
+// Add variable to track loading state
 let isRefreshing = false;
 
-// Function để xoay icon khi đang refresh
+// Function to rotate icon during refresh
 function startRefreshAnimation() {
     const refreshIcon = document.querySelector("#refresh-sheets svg");
     refreshIcon.classList.add("animate-spin");
 }
 
-// Function để dừng animation
+// Function to stop animation
 function stopRefreshAnimation() {
     const refreshIcon = document.querySelector("#refresh-sheets svg");
     refreshIcon.classList.remove("animate-spin");
@@ -221,7 +221,7 @@ function formatDateTime(dateString) {
     });
 }
 
-// Thêm biến để lưu sheet đang được chọn
+// Add variable to store selected sheet
 let selectedSheetId = null;
 
 async function refreshSheetsList() {
@@ -287,14 +287,14 @@ async function refreshSheetsList() {
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7"></path>
                                     </svg>
-                                    ${sheet.columns_count || sheet.headers?.length || 0} columns
+                                    ${sheet.columns_count || sheet.headers?.length || 0} 
                                 </span>
 
                                 <span class="sheet-stat">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
                                     </svg>
-                                    ${sheet.rows_count || sheet.content?.length || 0} rows
+                                    ${sheet.rows_count || sheet.content?.length || 0} 
                                 </span>
                             </div>
                         </div>
@@ -339,26 +339,26 @@ async function refreshSheetsList() {
     }
 }
 
-// Sửa lại event listener cho nút refresh
+// Update event listener for refresh button
 document.getElementById("refresh-sheets").addEventListener("click", (e) => {
     e.preventDefault();
     refreshSheetsList();
 });
 
-// Initial load - chỉ gọi một lần khi trang load
+// Initial load - called once when page loads
 document.addEventListener("DOMContentLoaded", () => {
     loadingOverlay = document.getElementById("loading-overlay");
     refreshSheetsList();
 });
 
-// Function để cập nhật một sheet cụ thể
+// Function to update a specific sheet
 async function updateSingleSheet(sheetId, sheetUrl) {
     const button = document.querySelector(
         `.update-sheet-btn[data-sheet-id="${sheetId}"]`
     );
     const buttonIcon = button.querySelector("svg");
     try {
-        // Chỉ xoay icon
+        // Only rotate icon
         buttonIcon.classList.add("animate-spin");
 
         const response = await fetch("/qa/update-sheet", {
@@ -391,7 +391,7 @@ async function updateSingleSheet(sheetId, sheetUrl) {
         console.error("Failed to update sheet:", error);
         alert("Failed to update sheet");
     } finally {
-        // Dừng xoay icon
+        // Stop icon rotation
         buttonIcon.classList.remove("animate-spin");
     }
 }
@@ -430,45 +430,37 @@ if (document.documentElement.classList.contains("dark")) {
 // Optional: Add transition for smoother dark mode changes
 document.querySelector(".url-input").style.transition = "background-color 0.3s";
 
-// Function để chọn sheet để chat
+
 async function selectSheetForChat(sheetId) {
-    selectedSheetId = sheetId;
-    
     try {
-        // Cập nhật UI để hiển thị sheet đang được chọn
+        // Update selected state
+        selectedSheetId = sheetId;
         document.querySelectorAll('#sheets-list > div').forEach(div => {
-            if (div.dataset.sheetId === sheetId) {
-                div.classList.add('ring-2', 'ring-blue-500');
-            } else {
-                div.classList.remove('ring-2', 'ring-blue-500');
-            }
+            div.classList.toggle('selected', div.dataset.sheetId === sheetId);
         });
 
-        // Lấy thông tin sheet và lịch sử chat
+        // Fetch sheet info and chat history
         const response = await fetch(`/qa/sheets/${sheetId}`);
         const data = await response.json();
-        
-        // Cập nhật tiêu đề chat
+
+        // Update chat title
         const chatTitle = document.getElementById('chat-title');
         if (chatTitle) {
             chatTitle.textContent = `Chat with: ${data.sheet_name}`;
         }
 
-        // Hiển thị lịch sử chat với markdown
+        // Display chat history
         const chatMessages = document.getElementById('chat-messages');
         if (chatMessages && data.chats) {
-            chatMessages.innerHTML = data.chats.map(chat => 
-                renderMessage(chat.message, chat.role)
-            ).join('');
+            chatMessages.innerHTML = data.chats
+                .map(chat => renderMessage(chat.message, chat.role))
+                .join('');
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
-        // Enable chat input và nút send
+        // Enable chat interface
         const chatInput = document.getElementById("chat-input");
-        const sendButton = document.querySelector(
-            '#chat-form button[type="submit"]'
-        );
-
+        const sendButton = document.querySelector('#chat-form button[type="submit"]');
         if (chatInput && sendButton) {
             chatInput.disabled = false;
             chatInput.placeholder = "Ask anything about this sheet...";
@@ -479,7 +471,7 @@ async function selectSheetForChat(sheetId) {
     }
 }
 
-// Thêm loading indicator
+// add loading indicator
 function showLoadingIndicator() {
     const messageDiv = document.createElement("div");
     messageDiv.className = "flex justify-start animate-fade-in";
@@ -498,13 +490,11 @@ function showLoadingIndicator() {
     const chatMessages = document.getElementById("chat-messages");
     chatMessages.appendChild(messageDiv);
 
-    // Scroll sau khi thêm loading indicator
     setTimeout(() => {
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }, 100);
 }
 
-// Cập nhật xử lý chat form
 document.getElementById("chat-form")?.addEventListener("submit", async (e) => {
     e.preventDefault();
 
@@ -522,29 +512,24 @@ document.getElementById("chat-form")?.addEventListener("submit", async (e) => {
     if (!message) return;
 
     try {
-        // Disable input và button
+
         chatInput.disabled = true;
         sendButton.disabled = true;
 
-        // Clear input trước khi hiển thị tin nhắn
         const messageToSend = message;
         chatInput.value = "";
         chatInput.style.height = "auto";
 
-        // Hiển thị tin nhắn người dùng
         const chatMessages = document.getElementById("chat-messages");
         const userMessage = renderMessage(messageToSend, "user");
         chatMessages.insertAdjacentHTML("beforeend", userMessage);
 
-        // Scroll sau khi thêm tin nhắn người dùng
         setTimeout(() => {
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }, 100);
 
-        // Hiển thị loading
         showLoadingIndicator();
 
-        // Gửi tin nhắn
         const response = await fetch("/qa/chat", {
             method: "POST",
             headers: {
@@ -559,7 +544,6 @@ document.getElementById("chat-form")?.addEventListener("submit", async (e) => {
             }),
         });
 
-        // Xóa loading
         document.getElementById("loading-indicator")?.remove();
 
         const data = await response.json();
@@ -568,7 +552,6 @@ document.getElementById("chat-form")?.addEventListener("submit", async (e) => {
             const assistantMessage = renderMessage(data.response, "assistant");
             chatMessages.insertAdjacentHTML("beforeend", assistantMessage);
 
-            // Scroll sau khi thêm tin nhắn assistant
             setTimeout(() => {
                 chatMessages.scrollTop = chatMessages.scrollHeight;
             }, 100);
@@ -585,7 +568,6 @@ document.getElementById("chat-form")?.addEventListener("submit", async (e) => {
     }
 });
 
-// Function để render tin nhắn với markdown
 function renderMessage(message, role) {
     const parsedContent = DOMPurify.sanitize(marked.parse(message));
     const currentTime = new Date().toLocaleTimeString("en-US", {
@@ -638,16 +620,13 @@ if (chatInput && preview) {
         this.style.height = "auto";
         this.style.height = this.scrollHeight + "px";
 
-        // Clear timeout trước đó
         clearTimeout(previewTimeout);
 
-        // Ẩn preview nếu input trng
         if (!this.value.trim()) {
             preview.classList.add("hidden");
             return;
         }
 
-        // Chỉ hiển thị preview khi có markdown syntax
         const hasMarkdown = /[*#`_~\[\]\(\)\{\}]/.test(this.value);
 
         if (hasMarkdown) {
@@ -662,12 +641,10 @@ if (chatInput && preview) {
         }
     });
 
-    // Ẩn preview khi form submit
     document.getElementById("chat-form")?.addEventListener("submit", () => {
         preview.classList.add("hidden");
     });
 
-    // Ẩn preview khi click outside
     document.addEventListener("click", (e) => {
         if (!chatInput.contains(e.target) && !preview.contains(e.target)) {
             preview.classList.add("hidden");
@@ -697,18 +674,15 @@ function initializeChat() {
     const chatMessages = document.getElementById("chat-messages");
 
     if (chatInput) {
-        // Xử lý auto-resize
+        // Handle auto-resize
         chatInput.addEventListener("input", () => {
             autoResizeTextarea(chatInput);
         });
 
-        // Thêm xử lý keydown cho Enter
+        // Handle Enter key
         chatInput.addEventListener("keydown", (e) => {
-            // Kiểm tra nếu nhấn Enter và không nhấn Shift
             if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault(); // Ngăn xuống dòng mặc định
-
-                // Trigger submit form nếu có nội dung
+                e.preventDefault();
                 if (chatInput.value.trim() && chatForm) {
                     chatForm.dispatchEvent(new Event("submit"));
                 }
@@ -717,74 +691,67 @@ function initializeChat() {
     }
 
     if (chatForm) {
-        chatForm.addEventListener("submit", async (e) => {
-            e.preventDefault();
-
-            if (!selectedSheetId) {
-                alert("Please select a sheet first");
-                return;
-            }
-
-            const message = chatInput.value.trim();
-            if (!message) return;
-
-            try {
-                // Disable input và button
-                chatInput.disabled = true;
-                const sendButton = chatForm.querySelector(
-                    'button[type="submit"]'
-                );
-                if (sendButton) sendButton.disabled = true;
-
-                // Clear input trước khi hiển thị tin nhắn
-                chatInput.value = "";
-                autoResizeTextarea(chatInput);
-
-                // Hiển thị tin nhắn người dùng
-                const userMessage = renderMessage(message, "user");
-                chatMessages.insertAdjacentHTML("beforeend", userMessage);
-                chatMessages.scrollTop = chatMessages.scrollHeight;
-
-                // Gửi tin nhắn và nhận phản hồi
-                const response = await fetch("/qa/chat", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-CSRF-TOKEN": document.querySelector(
-                            'meta[name="csrf-token"]'
-                        ).content,
-                    },
-                    body: JSON.stringify({
-                        sheet_id: selectedSheetId,
-                        message: message,
-                    }),
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    const assistantMessage = renderMessage(
-                        data.response,
-                        "assistant"
-                    );
-                    chatMessages.insertAdjacentHTML(
-                        "beforeend",
-                        assistantMessage
-                    );
-                    chatMessages.scrollTop = chatMessages.scrollHeight;
-                } else {
-                    throw new Error(data.error || "Failed to get response");
-                }
-            } catch (error) {
-                console.error("Chat error:", error);
-                alert("Failed to send message: " + error.message);
-            } finally {
-                chatInput.disabled = false;
-                if (sendButton) sendButton.disabled = false;
-                chatInput.focus();
-            }
-        });
+        chatForm.addEventListener("submit", handleChatSubmit);
     }
 }
+
 // Initialize when document is ready
 document.addEventListener("DOMContentLoaded", initializeChat);
+
+async function handleChatSubmit(e) {
+    e.preventDefault();
+
+    if (!selectedSheetId) {
+        alert("Please select a sheet first");
+        return;
+    }
+
+    const message = chatInput.value.trim();
+    if (!message) return;
+
+    try {
+        // Disable input and button
+        chatInput.disabled = true;
+        const sendButton = chatForm.querySelector('button[type="submit"]');
+        if (sendButton) sendButton.disabled = true;
+
+        // Clear input before showing message
+        chatInput.value = "";
+        autoResizeTextarea(chatInput);
+
+        // Display user message
+        const userMessage = renderMessage(message, "user");
+        chatMessages.insertAdjacentHTML("beforeend", userMessage);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        // Send message and get response
+        const response = await fetch("/qa/chat", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content,
+            },
+            body: JSON.stringify({
+                sheet_id: selectedSheetId,
+                message: message,
+            }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            const assistantMessage = renderMessage(data.response, "assistant");
+            chatMessages.insertAdjacentHTML("beforeend", assistantMessage);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        } else {
+            throw new Error(data.error || "Failed to get response");
+        }
+    } catch (error) {
+        console.error("Chat error:", error);
+        alert("Failed to send message: " + error.message);
+    } finally {
+        chatInput.disabled = false;
+        if (sendButton) sendButton.disabled = false;
+        chatInput.focus();
+    }
+}
