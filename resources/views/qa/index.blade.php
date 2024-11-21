@@ -108,8 +108,6 @@
             </div>
         </div>
     </div>
+    
+    @vite(['resources/css/qa.css', 'resources/css/chat.css', 'resources/js/qa.js'])
 </x-app-layout>
-
-@push('scripts')
-    @vite(['resources/js/app.js'])
-@endpush 
