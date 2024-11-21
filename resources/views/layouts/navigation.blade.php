@@ -18,6 +18,9 @@
                     <x-nav-link :href="route('chat')" :active="request()->routeIs('chat')">
                         {{ __('Chat GPT') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('qa')" :active="request()->routeIs('qa')">
+                        {{ __('Q&A Assistant') }}
+                    </x-nav-link>
                 </div>
             </div>
 

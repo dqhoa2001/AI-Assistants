@@ -60,45 +60,6 @@
         </div>
     </div>
 
-    <style>
-        /* Custom Scrollbar */
-        #chat-messages::-webkit-scrollbar {
-            width: 6px;
-        }
-        
-        #chat-messages::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        
-        #chat-messages::-webkit-scrollbar-thumb {
-            background-color: rgba(156, 163, 175, 0.5);
-            border-radius: 3px;
-        }
-
-        /* Animation */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .animate-fade-in {
-            animation: fadeIn 0.3s ease-out;
-        }
-
-        /* Textarea Auto-resize */
-        textarea {
-            min-height: 40px;
-            max-height: 120px;
-            overflow-y: auto;
-        }
-        
-        /* Break Words */
-        .break-words {
-            word-wrap: break-word;
-            word-break: break-word;
-        }
-    </style>
-
     @push('scripts')
     @vite(['resources/js/app.js'])
     @endpush

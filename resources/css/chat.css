@@ -20,20 +20,11 @@
 }
 
 .send-button {
-    @apply bg-gradient-to-r from-blue-500 to-indigo-600
-    hover:from-blue-600 hover:to-indigo-700
-    text-white font-medium px-6 py-2 rounded-lg
-    transition duration-200 ease-in-out
-    shadow-md hover:shadow-lg;
+    @apply bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-medium px-6 py-2 rounded-lg transition duration-200 ease-in-out shadow-md hover:shadow-lg;
 }
 
 .chat-input {
-    @apply bg-white dark:bg-gray-800 
-    border border-gray-200 dark:border-gray-700
-    focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400
-    focus:border-transparent
-    rounded-lg px-4 py-3
-    text-gray-800 dark:text-gray-200;
+    @apply bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent rounded-lg px-4 py-3 text-gray-800 dark:text-gray-200;
 }
 
 .prose-white {
@@ -81,14 +72,26 @@
     animation: bounce 1.5s infinite ease-in-out;
 }
 
-.typing-indicator span:nth-child(1) { animation-delay: 0s; }
-.typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
-.typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+.typing-indicator span:nth-child(1) {
+    animation-delay: 0s;
+}
+
+.typing-indicator span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.typing-indicator span:nth-child(3) {
+    animation-delay: 0.4s;
+}
 
 @keyframes bounce {
-    0%, 60%, 100% {
+
+    0%,
+    60%,
+    100% {
         transform: translateY(0);
     }
+
     30% {
         transform: translateY(-4px);
     }
@@ -100,4 +103,48 @@
 
 .dark .typing-indicator span {
     background: #818cf8;
+}
+
+/* Custom Scrollbar */
+#chat-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+#chat-messages::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+#chat-messages::-webkit-scrollbar-thumb {
+    background-color: rgba(156, 163, 175, 0.5);
+    border-radius: 3px;
+}
+
+/* Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* Textarea Auto-resize */
+textarea {
+    min-height: 40px;
+    max-height: 120px;
+    overflow-y: auto;
+}
+
+/* Break Words */
+.break-words {
+    word-wrap: break-word;
+    word-break: break-word;
 }
