@@ -23,6 +23,9 @@ class IntegraFlowController extends Controller
 
     public function analyze(Request $request): JsonResponse
     {
+        // Tăng timeout PHP
+        ini_set('max_execution_time', 120); // 2 minutes
+        
         $request->validate([
             'name' => 'required|string',
             'description' => 'required|string'
@@ -43,9 +46,10 @@ class IntegraFlowController extends Controller
             ];
 
             $response = $this->chatService->sendToChatGPT($messages);
-
+            
             if (!$response->successful()) {
-                throw new \Exception('Failed to get response from ChatGPT');
+                \Log::error('ChatGPT API error: ' . $response->body());
+                throw new \Exception('Failed to get response from ChatGPT: ' . $response->json('error.message', 'Unknown error'));
             }
 
             $content = $response->json('choices.0.message.content');

@@ -24,9 +24,7 @@
 }
 
 .loading-spinner {
-    @apply w-8 h-8 border-4 border-blue-500 border-t-transparent
-           rounded-full;
-    animation: spin 1s linear infinite;
+    @apply w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto;
 }
 
 @keyframes spin {
@@ -39,70 +37,44 @@
 }
 
 .markdown-content {
-    line-height: 1.5;
     @apply text-gray-800 dark:text-gray-200;
 }
 
 .markdown-content h2 {
-    @apply text-xl font-bold mt-8 mb-4 
-           text-gray-900 dark:text-gray-100
-           border-b border-gray-200 dark:border-gray-700
-           pb-2;
+    @apply text-2xl font-bold mb-4 mt-8 text-gray-900 dark:text-gray-100;
 }
 
 .markdown-content h3 {
-    @apply text-lg font-semibold mt-6 mb-3
-           text-gray-800 dark:text-gray-200;
+    @apply text-xl font-semibold mb-3 mt-6 text-gray-800 dark:text-gray-200;
 }
 
 .markdown-content p {
-    @apply my-4 leading-relaxed;
+    @apply mb-4 leading-relaxed;
 }
 
 .markdown-content ul {
-    @apply list-disc list-inside my-4 ml-4;
-}
-
-.markdown-content ol {
-    @apply list-decimal list-inside my-4 ml-4;
+    @apply mb-4 ml-6 list-disc;
 }
 
 .markdown-content li {
-    @apply my-2;
-}
-
-.markdown-content code {
-    @apply px-2 py-1 rounded
-           bg-gray-100 dark:bg-gray-800
-           text-gray-800 dark:text-gray-200
-           text-sm font-mono;
-}
-
-.markdown-content pre {
-    @apply p-4 rounded-lg my-4
-           bg-gray-100 dark:bg-gray-800
-           text-gray-800 dark:text-gray-200
-           overflow-x-auto;
-}
-
-.markdown-content blockquote {
-    @apply pl-4 border-l-4 border-gray-300 dark:border-gray-600
-           italic my-4;
+    @apply mb-2;
 }
 
 .markdown-content table {
-    @apply w-full border-collapse my-4;
+    @apply w-full mb-4 border-collapse;
 }
 
 .markdown-content th,
 .markdown-content td {
-    @apply border border-gray-300 dark:border-gray-600
-           px-4 py-2 text-left;
+    @apply border border-gray-300 dark:border-gray-700 p-2 text-left;
 }
 
 .markdown-content th {
-    @apply bg-gray-100 dark:bg-gray-800
-           font-semibold;
+    @apply bg-gray-100 dark:bg-gray-700;
+}
+
+.markdown-content blockquote {
+    @apply pl-4 border-l-4 border-blue-500 italic my-4 text-gray-600 dark:text-gray-400;
 }
 
 /* Animation */
@@ -124,7 +96,6 @@
 /* Textarea Auto-resize */
 textarea {
     min-height: 40px;
-    max-height: 120px;
     overflow-y: auto;
 }
 
@@ -185,4 +156,226 @@ textarea {
 .markdown-content code,
 .markdown-content pre {
     color: inherit; /* Sẽ kế thừa màu chữ từ parent element */
+}
+
+/* Loading animation */
+.animate-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: .5;
+    }
+}
+
+/* Improved scrollbar styling */
+#analysis-results::-webkit-scrollbar {
+    width: 6px;
+}
+
+#analysis-results::-webkit-scrollbar-track {
+    @apply bg-transparent;
+}
+
+#analysis-results::-webkit-scrollbar-thumb {
+    @apply bg-gray-300 dark:bg-gray-600 rounded;
+}
+
+/* Selected section highlighting */
+.selected-section {
+    @apply bg-blue-50 dark:bg-blue-900/20 p-2 rounded-lg relative ring-2 ring-blue-500/50;
+}
+
+.selected-section::before {
+    content: '✏️';
+    @apply absolute -left-6 top-2;
+}
+
+/* Modal styling */
+.modal-overlay {
+    @apply fixed inset-0 bg-black bg-opacity-50 z-50;
+}
+
+/* Chat history styling */
+#chat-history > div {
+    @apply p-2 rounded;
+}
+
+#chat-history > div:nth-child(odd) {
+    @apply bg-gray-100 dark:bg-gray-800;
+}
+
+/* Editable content styling */
+.editable-content {
+    @apply cursor-pointer transition-colors duration-200;
+}
+
+.editable-content:hover {
+    @apply bg-gray-50 dark:bg-gray-700/50;
+}
+
+.selected-section {
+    @apply bg-blue-50 dark:bg-blue-900/20 p-2 rounded-lg relative ring-2 ring-blue-500/50;
+}
+
+/* Different highlight styles for different content types */
+h2.selected-section,
+h3.selected-section {
+    @apply ring-blue-600;
+}
+
+p.selected-section,
+li.selected-section {
+    @apply ring-green-500;
+}
+
+td.selected-section {
+    @apply ring-purple-500;
+}
+
+/* Indicator for editable content */
+.editable-content:hover::after {
+    content: '✏️';
+    @apply absolute -right-6 top-1/2 transform -translate-y-1/2 opacity-50;
+}
+
+/* Modal improvements */
+#edit-modal textarea {
+    @apply font-mono;  /* Better for editing formatted text */
+}
+
+/* Style for showing what type of content is being edited */
+#edit-modal::before {
+    content: attr(data-editing-type);
+    @apply absolute top-4 right-4 text-sm text-gray-500 dark:text-gray-400;
+}
+
+/* Full markdown editor styling */
+#full-markdown-editor {
+    @apply font-mono text-sm;
+    min-height: 500px;
+    tab-size: 2;
+}
+
+/* Preview panel */
+#preview-panel {
+    @apply bg-gray-50 dark:bg-gray-900;
+}
+
+/* Markdown view */
+.markdown-view pre {
+    @apply bg-gray-50 dark:bg-gray-900 p-4 rounded-lg;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+/* Transition effects */
+.editor-panel, .preview-panel {
+    @apply transition-all duration-300 ease-in-out;
+}
+
+/* Markdown help modal */
+.markdown-help pre {
+    @apply font-mono text-sm overflow-x-auto;
+}
+
+/* Markdown editing area */
+.markdown-view textarea {
+    @apply font-mono text-sm;
+    min-height: 500px;
+    tab-size: 2;
+    line-height: 1.6;
+    resize: vertical;
+}
+
+/* Markdown help section */
+#markdown-help-section {
+    @apply transition-all duration-300 ease-in-out;
+}
+
+#markdown-help-section pre {
+    @apply font-mono text-sm overflow-x-auto text-gray-800 dark:text-gray-200;
+}
+
+/* Smooth transitions */
+.markdown-content {
+    @apply transition-all duration-300;
+}
+
+/* Markdown editing styles */
+.markdown-view {
+    @apply relative transition-all duration-300;
+}
+
+.markdown-view textarea {
+    @apply font-mono text-sm;
+    line-height: 1.6;
+    tab-size: 2;
+}
+
+/* Modal styles */
+.markdown-modal {
+    @apply transition-opacity duration-200;
+}
+
+.markdown-modal pre {
+    @apply font-mono text-sm overflow-x-auto;
+}
+
+/* Smooth transitions */
+.markdown-content {
+    @apply transition-all duration-300;
+}
+
+/* Textarea styling */
+.auto-resize-textarea {
+    resize: none;
+    overflow-y: hidden;
+    min-height: 200px; /* Minimum height */
+    transition: height 0.1s ease-out;
+}
+
+.markdown-view {
+    @apply relative transition-all duration-300;
+}
+
+.markdown-view textarea {
+    @apply font-mono text-sm;
+    line-height: 1.6;
+    tab-size: 2;
+}
+
+/* Fixed buttons styling */
+.action-buttons {
+    @apply fixed z-50 flex flex-col gap-2;
+    right: 2rem; /* Cố định khoảng cách với lề phải */
+    bottom: 5%; /* Căn giữa theo chiều dọc */
+    transform: translateY(-50%); /* Điều chỉnh để căn chính xác */
+}
+
+/* Button styling */
+.action-button {
+    @apply px-4 py-2 text-white rounded-lg shadow-lg 
+           transform transition-all duration-200
+           flex items-center gap-2 whitespace-nowrap;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1280px) {
+    .action-buttons {
+        @apply bottom-4 right-4 top-auto flex-row;
+        transform: none;
+    }
+}
+
+.edit-button {
+    @apply bg-blue-600 hover:bg-blue-700;
+}
+
+.help-button {
+    @apply bg-gray-600 hover:bg-gray-700;
 }
