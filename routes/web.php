@@ -40,6 +40,10 @@ Route::middleware('auth')->group(function () {
     // IntegraFlow
     Route::get('/integraflow', [IntegraFlowController::class, 'index'])->name('integraflow');
     Route::post('/integraflow/analyze', [IntegraFlowController::class, 'analyze'])->name('integraflow.analyze');
+    Route::get('/integraflow/projects/{project}', [IntegraFlowController::class, 'show'])->name('integraflow.show');
+    Route::post('/integraflow/update/{project}', [IntegraFlowController::class, 'update'])->name('integraflow.update');
+    Route::delete('/integraflow/projects/{project}', [IntegraFlowController::class, 'destroy'])
+        ->name('integraflow.destroy');
 });
 
 require __DIR__.'/auth.php';

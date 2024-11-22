@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\View\View;
 use App\Services\ChatService;
+use App\Models\Project;
 
 class IntegraFlowController extends Controller
 {
@@ -18,7 +19,11 @@ class IntegraFlowController extends Controller
 
     public function index(): View
     {
-        return view('integraflow.index');
+        $projects = Project::where('user_id', auth()->id())
+                          ->orderBy('created_at', 'desc')
+                          ->get();
+                          
+        return view('integraflow.index', compact('projects'));
     }
 
     public function analyze(Request $request): JsonResponse
@@ -53,10 +58,18 @@ class IntegraFlowController extends Controller
             }
 
             $content = $response->json('choices.0.message.content');
-            
+
+            $project = Project::create([
+                'user_id' => auth()->id(),
+                'name' => $request->name,
+                'description' => $request->description,
+                'analysis_result' => $content
+            ]);
+
             return response()->json([
                 'success' => true,
-                'analysis' => $this->parseAnalysis($content)
+                'analysis' => $this->parseAnalysis($content),
+                'project_id' => $project->id
             ]);
 
         } catch (\Exception $e) {
@@ -64,6 +77,104 @@ class IntegraFlowController extends Controller
             return response()->json([
                 'success' => false,
                 'error' => 'Analysis failed: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function update(Request $request, Project $project): JsonResponse
+    {
+        if ($project->user_id !== auth()->id()) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Unauthorized access'
+            ], 403);
+        }
+
+        try {
+            $request->validate([
+                'name' => 'sometimes|required|string',
+                'description' => 'sometimes|required|string',
+                'content' => 'sometimes|required|string'
+            ]);
+
+            $updateData = [];
+            
+            if ($request->has('content')) {
+                $updateData['analysis_result'] = $request->content;
+            }
+            if ($request->has('name')) {
+                $updateData['name'] = $request->name;
+            }
+            if ($request->has('description')) {
+                $updateData['description'] = $request->description;
+            }
+
+            $project->update($updateData);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Project updated successfully'
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Update failed: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'error' => 'Update failed: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function show(Project $project): JsonResponse
+    {
+        if ($project->user_id !== auth()->id()) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Unauthorized access'
+            ], 403);
+        }
+
+        try {
+            return response()->json([
+                'success' => true,
+                'project_id' => $project->id,
+                'project' => [
+                    'name' => $project->name,
+                    'description' => $project->description
+                ],
+                'analysis' => [
+                    'raw_content' => $project->analysis_result
+                ]
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Failed to load project: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'error' => 'Failed to load project'
+            ], 500);
+        }
+    }
+
+    public function destroy(Project $project): JsonResponse
+    {
+        if ($project->user_id !== auth()->id()) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Unauthorized access'
+            ], 403);
+        }
+
+        try {
+            $project->delete();
+            return response()->json([
+                'success' => true,
+                'message' => 'Project deleted successfully'
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Delete failed: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'error' => 'Delete failed: ' . $e->getMessage()
             ], 500);
         }
     }
