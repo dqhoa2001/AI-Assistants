@@ -513,15 +513,13 @@ document.getElementById("chat-form")?.addEventListener("submit", async (e) => {
     }
 
     const chatInput = document.getElementById("chat-input");
-    const sendButton = document.querySelector(
-        '#chat-form button[type="submit"]'
-    );
+    const modelSelect = document.getElementById("model-select");
+    const sendButton = document.querySelector('#chat-form button[type="submit"]');
     const message = chatInput.value.trim();
 
     if (!message) return;
 
     try {
-
         chatInput.disabled = true;
         sendButton.disabled = true;
 
@@ -543,13 +541,12 @@ document.getElementById("chat-form")?.addEventListener("submit", async (e) => {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "X-CSRF-TOKEN": document.querySelector(
-                    'meta[name="csrf-token"]'
-                ).content,
+                "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content,
             },
             body: JSON.stringify({
                 sheet_id: selectedSheetId,
                 message: messageToSend,
+                model: modelSelect.value
             }),
         });
 
@@ -567,13 +564,9 @@ document.getElementById("chat-form")?.addEventListener("submit", async (e) => {
         } else {
             throw new Error(data.error || "Failed to get response");
         }
-    } catch (error) {
-        console.error("Chat error:", error);
-        alert("Failed to send message: " + error.message);
     } finally {
-        if (chatInput) chatInput.disabled = false;
-        if (sendButton) sendButton.disabled = false;
-        chatInput?.focus();
+        chatInput.disabled = false;
+        sendButton.disabled = false;
     }
 });
 

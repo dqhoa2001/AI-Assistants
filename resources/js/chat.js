@@ -75,6 +75,7 @@ class ChatManager {
 
     async sendMessage() {
         const message = this.messageInput.value.trim();
+        const model = document.getElementById('model-select').value;
         if (!message || this.isLoading) return;
 
         this.isLoading = true;
@@ -85,7 +86,7 @@ class ChatManager {
         
         try {
             this.showLoadingIndicator();
-            const response = await this.sendMessageToServer(message);
+            const response = await this.sendMessageToServer(message, model);
             const data = await response.json();
             this.removeLoadingIndicator();
             this.addMessage(data.message);
@@ -105,14 +106,14 @@ class ChatManager {
         if (!disabled) this.messageInput.focus();
     }
 
-    async sendMessageToServer(message) {
+    async sendMessageToServer(message, model) {
         return fetch('/chat/send', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
             },
-            body: JSON.stringify({ message })
+            body: JSON.stringify({ message, model })
         });
     }
 

@@ -42,6 +42,11 @@
                         
                         <!-- Input Area -->
                         <div class="flex gap-3 bg-white dark:bg-gray-800 p-4 rounded-lg border dark:border-gray-700">
+                            <select id="model-select" class="rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                                <option value="gpt">GPT</option>
+                                <option value="gemini">Gemini</option>
+                                <option value="claude">Claude</option>
+                            </select>
                             <textarea 
                                 id="message-input" 
                                 rows="1"

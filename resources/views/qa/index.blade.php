@@ -56,22 +56,26 @@
                             <!-- Input Area -->
                             <div class="border-t dark:border-gray-700 pt-4">
                                 <form id="chat-form" class="flex gap-4">
-                                    <div class="flex-1 relative">
+                                    <div class="flex gap-3 bg-white dark:bg-gray-800 p-4 rounded-lg border dark:border-gray-700 w-full">
+                                        <select id="model-select" class="rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                                            <option value="gpt">GPT</option>
+                                            <option value="gemini">Gemini</option>
+                                            <option value="claude">Claude</option>
+                                        </select>
                                         <textarea 
-                                            id="chat-input"
+                                            id="chat-input" 
                                             rows="1"
                                             class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 focus:border-indigo-500 focus:ring-indigo-500 resize-none overflow-hidden"
-                                            placeholder="Type your message... (Press Enter to send, Shift+Enter for new line)"
+                                            placeholder="(Press Enter to send, Shift+Enter for new line)"
                                             disabled
                                         ></textarea>
-                                        <div id="markdown-preview" class="hidden mt-2 p-2 rounded bg-gray-50 dark:bg-gray-700"></div>
+                                        <button type="submit" 
+                                            class="send-button"
+                                            disabled
+                                        >
+                                            Send
+                                        </button>
                                     </div>
-                                    <button type="submit" 
-                                        class="send-button"
-                                        disabled
-                                    >
-                                        Send
-                                    </button>
                                 </form>
                             </div>
                         </div>
