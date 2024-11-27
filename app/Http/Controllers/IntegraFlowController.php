@@ -5,16 +5,16 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\View\View;
-use App\Services\ChatService;
+use App\Services\AIResponseService;
 use App\Models\Project;
 
 class IntegraFlowController extends Controller
 {
-    protected $chatService;
+    protected $aiResponseService;
 
-    public function __construct(ChatService $chatService)
+    public function __construct(AIResponseService $aiResponseService)
     {
-        $this->chatService = $chatService;
+        $this->aiResponseService = $aiResponseService;
     }
 
     public function index(): View
@@ -30,10 +30,11 @@ class IntegraFlowController extends Controller
     {
         // Tăng timeout PHP
         ini_set('max_execution_time', 120); // 2 minutes
-        
+        $model = $request->input('model', 'gpt');
         $request->validate([
             'name' => 'required|string',
-            'description' => 'required|string'
+            'description' => 'required|string',
+            'model' => 'required|string|in:gpt,gemini,claude'
         ]);
 
         try {
@@ -41,23 +42,16 @@ class IntegraFlowController extends Controller
             
             $messages = [
                 [
-                    'role' => 'system',
-                    'content' => 'You are a professional project analyst specializing in software development, project management, and business analysis.'
-                ],
-                [
                     'role' => 'user',
                     'content' => $prompt
                 ]
             ];
+            $data = [
+                'messages' => $messages,
+                'system' => 'You are a professional project analyst specializing in software development, project management, and business analysis.'
+            ];
 
-            $response = $this->chatService->sendToChatGPT($messages);
-            
-            if (!$response->successful()) {
-                \Log::error('ChatGPT API error: ' . $response->body());
-                throw new \Exception('Failed to get response from ChatGPT: ' . $response->json('error.message', 'Unknown error'));
-            }
-
-            $content = $response->json('choices.0.message.content');
+            $content = $this->aiResponseService->getResponse($model, $data);
 
             $project = Project::create([
                 'user_id' => auth()->id(),
@@ -264,5 +258,13 @@ class IntegraFlowController extends Controller
         return [
             'raw_content' => $content,
         ];
+    }
+    public function getProjects(): JsonResponse
+    {
+        $projects = Project::where('user_id', auth()->id())
+                        ->orderBy('created_at', 'desc')
+                        ->get();
+
+        return response()->json(['success' => true, 'projects' => $projects]);
     }
 }

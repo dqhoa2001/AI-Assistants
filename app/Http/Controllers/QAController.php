@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\SheetContent;
 use App\Services\GoogleSheetService;
-use App\Services\ChatService;
+use App\Services\AIResponseService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\View\View;
@@ -12,12 +12,12 @@ use App\Models\SheetChat;
 
 class QAController extends Controller
 {
-    protected $chatService;
+    protected $aiResponseService;
     protected $sheetService;
 
-    public function __construct(ChatService $chatService, GoogleSheetService $sheetService)
+    public function __construct(AIResponseService $aiResponseService, GoogleSheetService $sheetService)
     {
-        $this->chatService = $chatService;
+        $this->aiResponseService = $aiResponseService;
         $this->sheetService = $sheetService;
     }
 
@@ -88,37 +88,37 @@ class QAController extends Controller
         }
     }
 
-    public function ask(Request $request): JsonResponse
-    {
-        $request->validate([
-            'question' => 'required|string'
-        ]);
+    // public function ask(Request $request): JsonResponse
+    // {
+    //     $request->validate([
+    //         'question' => 'required|string'
+    //     ]);
 
-        // Get all sheet content for context
-        $allContent = SheetContent::where('user_id', auth()->id())
-            ->get()
-            ->map(function($sheet) {
-                return [
-                    'sheet_name' => $sheet->sheet_name,
-                    'headers' => $sheet->headers,
-                    'content' => $sheet->content
-                ];
-            })
-            ->toArray();
+    //     // Get all sheet content for context
+    //     $allContent = SheetContent::where('user_id', auth()->id())
+    //         ->get()
+    //         ->map(function($sheet) {
+    //             return [
+    //                 'sheet_name' => $sheet->sheet_name,
+    //                 'headers' => $sheet->headers,
+    //                 'content' => $sheet->content
+    //             ];
+    //         })
+    //         ->toArray();
 
-        // Prepare context for ChatGPT
-        $messages = [
-            ['role' => 'system', 'content' => 'You are a helpful assistant. Use the following spreadsheet data to answer questions. Only use the provided content to answer questions. If the answer cannot be found in the content, say so.'],
-            ['role' => 'system', 'content' => 'Available data: ' . json_encode($allContent)],
-            ['role' => 'user', 'content' => $request->question]
-        ];
+    //     // Prepare context for ChatGPT
+    //     $messages = [
+    //         ['role' => 'system', 'content' => 'You are a helpful assistant. Use the following spreadsheet data to answer questions. Only use the provided content to answer questions. If the answer cannot be found in the content, say so.'],
+    //         ['role' => 'system', 'content' => 'Available data: ' . json_encode($allContent)],
+    //         ['role' => 'user', 'content' => $request->question]
+    //     ];
 
-        $response = $this->chatService->sendToChatGPT($messages);
+    //     $response = $this->chatService->sendToChatGPT($messages);
         
-        return response()->json([
-            'answer' => $response->json('choices.0.message.content')
-        ]);
-    }
+    //     return response()->json([
+    //         'answer' => $response->json('choices.0.message.content')
+    //     ]);
+    // }
 
     public function listSheets(): JsonResponse
     {
@@ -243,9 +243,13 @@ class QAController extends Controller
 
     public function chat(Request $request)
     {
+        $model = $request->input('model', 'gpt');
+
         $request->validate([
             'sheet_id' => 'required|exists:sheet_contents,id',
-            'message' => 'required|string'
+            'message' => 'required|string',
+            'model' => 'required|string|in:gpt,gemini,claude'
+
         ]);
 
         try {
@@ -283,17 +287,12 @@ class QAController extends Controller
                     ]
                 ],
                 $recentChats,
-                [
-                    [
-                        'role' => 'user', 
-                        'content' => $request->message
-                    ]
-                ]
             );
-
-            $response = $this->chatService->sendToChatGPT($messages);
-            $responseMessage = $response->json('choices.0.message.content');
-
+            $data=[
+                'messages' => $recentChats,
+                'system' => 'Sheet data: ' . json_encode($sheetContext)
+            ];
+            $responseMessage = $this->aiResponseService->getResponse($model, $data);
             // Lưu assistant response
             SheetChat::create([
                 'user_id' => auth()->id(),

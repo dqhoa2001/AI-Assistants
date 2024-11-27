@@ -36,4 +36,20 @@ class Chat extends Model
                     ->get()
                     ->reverse();
     }
+
+    public static function createMessage(int $userId, string $content, string $role)
+    {
+        return self::create([
+            'user_id' => $userId,
+            'content' => $content,
+            'role' => $role
+        ]);
+    }
+
+    public static function getHistory(int $userId)
+    {
+        return self::where('user_id', $userId)
+            ->orderBy('created_at', 'asc')
+            ->get();
+    }
 } 

@@ -105,6 +105,23 @@
                                               placeholder="Enter project description"></textarea>
                                 </div>
 
+                                <!-- Model Selection -->
+                                <div>
+                                    <label for="model-select" 
+                                           class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                        Select Model
+                                    </label>
+                                    <select id="model-select" name="model" 
+                                            class="w-full px-4 py-2 rounded-lg border border-gray-300 
+                                                   dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300
+                                                   focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                                                   transition duration-150 ease-in-out">
+                                        <option value="gpt">GPT</option>
+                                        <option value="gemini">Gemini</option>
+                                        <option value="claude">Claude</option>
+                                    </select>
+                                </div>
+
                                 <!-- Action Buttons -->
                                 <div class="flex flex-col sm:flex-row gap-4 pt-2">
                                     <button id="save-project" 

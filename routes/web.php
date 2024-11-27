@@ -44,6 +44,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/integraflow/update/{project}', [IntegraFlowController::class, 'update'])->name('integraflow.update');
     Route::delete('/integraflow/projects/{project}', [IntegraFlowController::class, 'destroy'])
         ->name('integraflow.destroy');
+    Route::get('/integraflow/projects', [IntegraFlowController::class, 'getProjects'])->name('integraflow.getProjects');
+
 });
 
 require __DIR__.'/auth.php';

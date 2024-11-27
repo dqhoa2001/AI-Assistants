@@ -50,6 +50,8 @@ class ProjectAnalyzer {
         this.setupInputChangeTracking();
 
         this.setupDeleteProjectEvents();
+
+        this.projectsList = document.getElementById('projects-list'); // Thêm biến để lưu trữ danh sách dự án
     }
 
     initAutoResize() {
@@ -77,6 +79,7 @@ class ProjectAnalyzer {
     async analyzeProject() {
         const name = this.projectName.value.trim();
         const description = this.projectDescription.value.trim();
+        const model = document.getElementById('model-select').value;
 
         if (!name || !description) {
             alert('Please enter both project name and description');
@@ -93,7 +96,7 @@ class ProjectAnalyzer {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                 },
-                body: JSON.stringify({ name, description })
+                body: JSON.stringify({ name, description, model })
             });
 
             const data = await response.json();
@@ -110,6 +113,9 @@ class ProjectAnalyzer {
             }
 
             this.displayResults(data.analysis.raw_content);
+
+            // Tải lại danh sách dự án
+            await this.loadProjects();
 
         } catch (error) {
             console.error('Error:', error);
@@ -779,6 +785,77 @@ class ProjectAnalyzer {
             console.error('Error:', error);
             alert(error.message || 'Failed to delete project');
         }
+    }
+
+    async loadProjects() {
+        try {
+            const response = await fetch('/integraflow/projects', {
+                method: 'GET',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                }
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                this.updateProjectsList(data.projects);
+            } else {
+                throw new Error(data.error || 'Failed to load projects');
+            }
+        } catch (error) {
+            console.error('Error loading projects:', error);
+            alert('Failed to load projects. Please try again.');
+        }
+    }
+
+    updateProjectsList(projects) {
+        // Xóa danh sách hiện tại
+        this.projectsList.innerHTML = '';
+
+        // Thêm các dự án mới vào danh sách
+        projects.forEach(project => {
+            const projectItem = document.createElement('div');
+            projectItem.className = 'project-item cursor-pointer rounded-lg transition-colors duration-200';
+            projectItem.dataset.projectId = project.id;
+
+            projectItem.innerHTML = `
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h4 class="font-medium text-gray-900 dark:text-gray-100">${project.name}</h4>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                            ${project.description.length > 100 ? project.description.substring(0, 97) + '...' : project.description}
+                        </p>
+                    </div>
+                    <button class="delete-project-btn p-1.5 text-gray-400 hover:text-red-500 transition-colors duration-200"
+                            data-project-id="${project.id}"
+                            title="Delete project">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="flex gap-2 mt-2">
+                    <span class="project-stat">
+                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                        ${new Date(project.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                    </span>
+                    <span class="project-stat">
+                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        ${new Date(project.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                </div>
+            `;
+
+            this.projectsList.appendChild(projectItem);
+        });
     }
 }
 
