@@ -6,7 +6,13 @@ export default defineConfig({
         laravel({
             input: [
                 'resources/css/app.css',
+                'resources/css/chat.css',
+                'resources/css/qa.css',
+                'resources/css/integraflow.css',
                 'resources/js/app.js',
+                'resources/js/chat.js',
+                'resources/js/qa.js',
+                'resources/js/integraflow.js'
             ],
             refresh: true,
         }),

@@ -60,7 +60,5 @@
         </div>
     </div>
 
-    @push('scripts')
-    @vite(['resources/js/app.js'])
-    @endpush
+    @vite(['resources/css/chat.css', 'resources/js/chat.js'])
 </x-app-layout>

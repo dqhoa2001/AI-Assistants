@@ -21,6 +21,9 @@
                     <x-nav-link :href="route('qa')" :active="request()->routeIs('qa')">
                         {{ __('Q&A Assistant') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('integraflow')" :active="request()->routeIs('integraflow')">
+                        {{ __('Integra Flow AI') }}
+                    </x-nav-link>
                 </div>
             </div>
 
@@ -75,6 +78,15 @@
         <div class="pt-2 pb-3 space-y-1">
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('chat')" :active="request()->routeIs('chat')">
+                {{ __('Chat GPT') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('qa')" :active="request()->routeIs('qa')">
+                {{ __('Q&A Assistant') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('integraflow')" :active="request()->routeIs('integraflow')">
+                {{ __('Integra Flow AI') }}
             </x-responsive-nav-link>
         </div>
 

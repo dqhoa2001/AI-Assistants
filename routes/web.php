@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\QAController;
+use App\Http\Controllers\IntegraFlowController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -35,6 +36,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/qa/sheets/{id}', [QAController::class, 'getSheet'])->name('qa.sheet');
     Route::post('/qa/chat', [QAController::class, 'chat'])->name('qa.chat');
     Route::delete('/qa/sheets/{id}', [QAController::class, 'deleteSheet'])->name('qa.sheets.delete');
+
+    // IntegraFlow
+    Route::get('/integraflow', [IntegraFlowController::class, 'index'])->name('integraflow');
+    Route::post('/integraflow/analyze', [IntegraFlowController::class, 'analyze'])->name('integraflow.analyze');
+    Route::get('/integraflow/projects/{project}', [IntegraFlowController::class, 'show'])->name('integraflow.show');
+    Route::post('/integraflow/update/{project}', [IntegraFlowController::class, 'update'])->name('integraflow.update');
+    Route::delete('/integraflow/projects/{project}', [IntegraFlowController::class, 'destroy'])
+        ->name('integraflow.destroy');
 });
 
 require __DIR__.'/auth.php';
