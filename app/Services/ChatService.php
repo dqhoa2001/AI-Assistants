@@ -25,6 +25,7 @@ class ChatService
                 ])->post('https://api.openai.com/v1/chat/completions', [
                     'model' => 'gpt-4o-mini-2024-07-18',
                     'messages' => $messages,
+                    "temperature" => 1,
                 ]);
 
                 if ($response->successful()) {

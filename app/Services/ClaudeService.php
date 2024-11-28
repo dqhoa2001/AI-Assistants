@@ -30,6 +30,8 @@ class ClaudeService
             'model' => 'claude-3-5-haiku-20241022',
             'system' => $systemInstructionText,
             'messages' => $contents,
+            'max_tokens' => 8192,
+            'temperature' => 1,
         ];
         $attempt = 0;
         while ($attempt < $retries) {
