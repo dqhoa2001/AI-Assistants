@@ -263,7 +263,7 @@ async function refreshSheetsList() {
                                     </svg>
                                 </button>
                                 <button 
-                                    class="update-sheet-btn text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors duration-200"
+                                    class="update-sheet-btn p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors duration-200"
                                     data-sheet-id="${sheet.id}"
                                     data-sheet-url="${sheet.sheet_url}"
                                 >

@@ -57,6 +57,16 @@
                                 {{ __('Log Out') }}
                             </x-dropdown-link>
                         </form>
+                        <x-dropdown-link>
+                            <div class="toggle-container flex items-center gap-4">
+                                <span class="text-gray-700 dark:text-gray-300">Dark Mode</span>
+                                <input type="checkbox" id="dark-mode-toggle" class="toggle-checkbox" />
+                                <label for="dark-mode-toggle" class="toggle-label">
+                                    <span class="toggle-inner"></span>
+                                    <span class="toggle-switch"></span>
+                                </label>
+                            </div>
+                        </x-dropdown-link>
                     </x-slot>
                 </x-dropdown>
             </div>

@@ -7,7 +7,7 @@
 }
 
 .prose pre {
-    @apply bg-gray-100 dark:bg-gray-800 p-4 rounded-lg overflow-x-auto;
+    @apply bg-gray-100 dark:bg-gray-600 p-4 rounded-lg overflow-x-auto;
 }
 
 .prose blockquote {
@@ -48,11 +48,14 @@
 }
 
 .prose pre code {
-    @apply text-gray-900 dark:text-gray-900 !important;
+    @apply text-gray-900 dark:text-gray-200;
 }
 
 .prose code {
-    @apply text-gray-900 dark:text-gray-900 !important;
+    @apply px-2 py-1 rounded
+           bg-gray-100 dark:bg-gray-600
+           text-gray-600 dark:text-gray-200
+           text-sm font-mono;
 }
 
 .typing-indicator {
