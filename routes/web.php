@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\QAController;
 use App\Http\Controllers\IntegraFlowController;
+use App\Http\Controllers\UserManagementController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -46,6 +47,13 @@ Route::middleware('auth')->group(function () {
         ->name('integraflow.destroy');
     Route::get('/integraflow/projects', [IntegraFlowController::class, 'getProjects'])->name('integraflow.getProjects');
 
+    //User management
+    Route::get('/user-management', [UserManagementController::class, 'index'])->name('user.management');
+    Route::get('/user/create', [UserManagementController::class, 'create'])->name('user.create');
+    Route::post('/user', [UserManagementController::class, 'store'])->name('user.store');
+    Route::get('/user/{user}/edit', [UserManagementController::class, 'edit'])->name('user.edit');
+    Route::put('/user/{user}', [UserManagementController::class, 'update'])->name('user.update');
+    Route::delete('/user/{user}', [UserManagementController::class, 'destroy'])->name('user.destroy');
 });
 
 require __DIR__.'/auth.php';
